@@ -3,6 +3,7 @@ package log
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -18,16 +19,7 @@ type FluentdFormatter struct {
 func (f *FluentdFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	data := make(logrus.Fields, len(entry.Data)+3)
 	for k, v := range entry.Data {
-		switch v := v.(type) {
-		case error:
-			// Otherwise errors are ignored by `encoding/json`
-			// https://github.com/Sirupsen/logrus/issues/137
-			data[k] = v.Error()
-		case fmt.Stringer:
-			data[k] = v.String()
-		default:
-			data[k] = v
-		}
+		data[k] = Value(v)
 	}
 	prefixFieldClashes(data)
 
@@ -45,6 +37,33 @@ func (f *FluentdFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		return nil, fmt.Errorf("Failed to marshal fields to JSON, %v", err)
 	}
 	return append(serialized, '\n'), nil
+}
+
+func Value(i interface{}) interface{} {
+	v := reflect.ValueOf(i)
+	kind := v.Kind()
+	if v, ok := i.(error); ok {
+		return v.Error()
+	}
+	if kind == reflect.Ptr {
+		return Value(v.Elem().Interface())
+	}
+	// handle basic type
+	if kind < reflect.Array {
+		return i
+	}
+	// handle string type
+	if kind == reflect.String {
+		return i
+	}
+	// handle type implement fmt.Stringer
+	if s, ok := i.(fmt.Stringer); ok {
+		return s.String()
+	}
+	if kind == reflect.Array || kind == reflect.Map || kind == reflect.Slice || kind == reflect.Struct {
+		return fmt.Sprintf("%+v", i)
+	}
+	return i
 }
 
 func prefixFieldClashes(data logrus.Fields) {
