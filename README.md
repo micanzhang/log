@@ -1,4 +1,4 @@
-# Log
+# Log [![Go Test](https://travis-ci.org/micanzhang/log.svg?branch=master)](https://travis-ci.org/micanzhang/log.svg?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/micanzhang/log)](https://goreportcard.com/report/github.com/micanzhang/log)
 
 ## FluentdFormatter
 

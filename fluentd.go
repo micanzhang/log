@@ -39,6 +39,7 @@ func (f *FluentdFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return append(serialized, '\n'), nil
 }
 
+// Value handle field value depends on its type
 func Value(i interface{}) interface{} {
 	v := reflect.ValueOf(i)
 	kind := v.Kind()
