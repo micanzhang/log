@@ -47,6 +47,9 @@ func Value(i interface{}) interface{} {
 		return v.Error()
 	}
 	if kind == reflect.Ptr {
+		if !v.Elem().IsValid() {
+			return nil
+		}
 		return Value(v.Elem().Interface())
 	}
 	// handle basic type
