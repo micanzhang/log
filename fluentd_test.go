@@ -19,6 +19,7 @@ func TestFormat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	var nilPointer *User
 	fields := logrus.Fields{
 		"status":        404,
 		"body":          []byte("Not Found"),
@@ -30,6 +31,7 @@ func TestFormat(t *testing.T) {
 		"error": errors.New("not found"),
 		"addr":  addr,
 		"user":  &User{"gopher", 8, 1024},
+		"nil": nilPointer,
 	}
 	tsFormat := time.RFC3339
 	buf := bytes.NewBuffer([]byte{})
